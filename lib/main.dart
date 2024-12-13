@@ -1,6 +1,5 @@
-
-import 'package:expense_app_ui/home_page.dart';
-import 'package:expense_app_ui/login_page.dart';
+import 'package:expense_app_ui/domain/app_constians.dart';
+import 'package:expense_app_ui/ui/splash_page.dart';
 import 'package:flutter/material.dart';
 
 void main(){
@@ -11,7 +10,8 @@ class Myapp extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: LoginPage(),
+      title: AppConstants.App_Name,
+      home: SplashPage(),
     );
   }
 }

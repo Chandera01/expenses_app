@@ -1,8 +1,13 @@
-import 'package:expense_app_ui/sign_up.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:expense_app_ui/ui/on_boading/sign_up_page.dart';
+import 'package:expense_app_ui/ui/second_page.dart';
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     TextEditingController usernameController = TextEditingController();
@@ -82,7 +87,9 @@ class LoginPage extends StatelessWidget {
             ),
           ),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>SecondPage()));
+            },
             child: SizedBox(
               height: 45,
               width: 100,
@@ -139,7 +146,25 @@ class LoginPage extends StatelessWidget {
             ),
           ),
 
-          ElevatedButton(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Don't have an account ?",style: TextStyle(fontSize: 16,color: Colors.blue),),
+              InkWell(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>SignupPage()));
+                },
+                child: Expanded(
+                  child: Text(
+                    "  Sign in",
+                    style: TextStyle(color: Colors.black, fontSize: 18),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+         /* ElevatedButton(
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context)=>SignupPage()));
             },
@@ -155,7 +180,7 @@ class LoginPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-          ),
+          ),*/
         ],
       ),
     );
