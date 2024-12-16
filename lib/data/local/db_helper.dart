@@ -17,6 +17,7 @@ class DbHelper {
 
   Database? uDB;
 
+  //// user tabel
   static final String Table_User = "user";
   static final String Table_Id = "u_id";
   static final String Table_Column_UserName = "u_name";
@@ -24,6 +25,18 @@ class DbHelper {
   static final String Table_Column_Mobile = "u_mobile";
   static final String Table_Column_Password = "u_password";
   static final String Table_Column_Created_At = "u_created_at";
+
+  ////expense table
+  static final String Expense_Table = "expen";
+  static final String Expense_Id = "e_id";
+  static final String Table_User_Id = "u_id";
+  static final String Expense_Column_Table_Type = "e_type";
+  static final String Expense_Column_Title = "e_title";
+  static final String Expense_Column_Description = "e_desc";
+  static final String Expense_Column_createdAt = "e_created_at";
+  static final String Expense_Column_amount = "amount";
+  static final String Expense_Column_balance = "balance";
+  static final String Expense_Column_Cat_Id = "e_cat_id";
 
   ///First initial the database when database create
   Future<Database> initDB() async {
@@ -37,8 +50,14 @@ class DbHelper {
     var dbpath = join(dairpath.path, "expense.db");
     return openDatabase(dbpath, version: 1, onCreate: (db, version) {
       print("Db created");
+
+      ///user table
       db.execute(
           "create table $Table_User ( $Table_Id integer primary key autoincrement, $Table_Column_UserName text not null, $Table_Column_Email text not null, $Table_Column_Mobile text not null, $Table_Column_Password text not null, $Table_Column_Created_At text not null)");
+
+      ///expense table
+      db.execute(
+          "create table $Expense_Table ( $Expense_Id integer primary key autoincrement, $Table_User_Id integer, $Expense_Column_Table_Type integer, $Expense_Column_Title text not null, $Expense_Column_Description text not null, $Expense_Column_createdAt text not null, $Expense_Column_amount real not null, $Expense_Column_balance real, $Expense_Column_Cat_Id integer");
     });
   }
 
@@ -68,7 +87,7 @@ class DbHelper {
       var prefs = await SharedPreferences.getInstance();
       prefs.setString("userId", mData[0][Table_Id].toString());
     }
-      return mData.isNotEmpty;
+    return mData.isNotEmpty;
   }
 
   /*Future<bool> addUser(UserModel newUser)async{
