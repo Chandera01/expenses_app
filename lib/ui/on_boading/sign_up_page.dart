@@ -2,12 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:expense_app_ui/data/local/models/usere_model.dart';
 import 'package:expense_app_ui/data/local/db_helper.dart';
 
-class SignupPage extends StatelessWidget {
+class SignupPage extends StatefulWidget {
+  @override
+  State<SignupPage> createState() => _SignupPageState();
+}
+
+class _SignupPageState extends State<SignupPage> {
   TextEditingController usernameController = TextEditingController();
+
   TextEditingController emailController = TextEditingController();
+
   TextEditingController mobileController = TextEditingController();
+
   TextEditingController newpassController = TextEditingController();
+
   TextEditingController confirmpassController = TextEditingController();
+
+  DbHelper dbHelper = DbHelper.instance;
+
+  bool isPassVisible = false;
+
+  bool isConfirmPassVisible = false;
 
   // Create a function that returns InputDecoration
   InputDecoration decorationtext() {
@@ -33,7 +48,7 @@ class SignupPage extends StatelessWidget {
     );
   }
 
-  Future<void> signup(BuildContext context) async {
+/*  Future<void> signup(BuildContext context) async {
     if (newpassController.text == confirmpassController.text) {
       UserModel newUser = UserModel(
           username: usernameController.text,
@@ -65,8 +80,7 @@ class SignupPage extends StatelessWidget {
         backgroundColor: Colors.red,
       ));
     }
-  }
-
+  }*/
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -134,9 +148,18 @@ class SignupPage extends StatelessWidget {
                 padding: const EdgeInsets.all(10.0),
                 child: TextField(
                   controller: newpassController,
-                  obscureText: true,
+                  obscureText: !isPassVisible,
                   obscuringCharacter: "*",
                   decoration: decorationtext().copyWith(
+                    suffixIcon: InkWell(
+                      onTap: () {
+                        isPassVisible = !isPassVisible;
+                        setState(() {});
+                      },
+                      child: Icon(isPassVisible
+                          ? Icons.visibility_rounded
+                          : Icons.visibility_off_rounded),
+                    ),
                     labelText: 'Password',
                     hintText: 'Enter your new password',
                   ),
@@ -148,9 +171,18 @@ class SignupPage extends StatelessWidget {
                 padding: const EdgeInsets.all(10.0),
                 child: TextField(
                   controller: confirmpassController,
-                  obscureText: true,
+                  obscureText: !isConfirmPassVisible,
                   obscuringCharacter: "*",
                   decoration: decorationtext().copyWith(
+                    suffixIcon: InkWell(
+                      onTap: () {
+                        isConfirmPassVisible = !isConfirmPassVisible;
+                        setState(() {});
+                      },
+                      child: Icon(isConfirmPassVisible
+                          ? Icons.visibility_rounded
+                          : Icons.visibility_off_rounded),
+                    ),
                     labelText: 'Confirm password',
                     hintText: 'Enter your Confirm password',
                   ),
@@ -158,7 +190,51 @@ class SignupPage extends StatelessWidget {
               ),
 
               ElevatedButton(
-                onPressed: () => signup(context), // Call signup method
+                onPressed: () async {
+                  if (usernameController.text.isNotEmpty &&
+                      emailController.text.isNotEmpty &&
+                      mobileController.text.isNotEmpty &&
+                      newpassController.text.isNotEmpty &&
+                      confirmpassController.text.isNotEmpty) {
+                    if (newpassController.text == confirmpassController.text) {
+                      // register user
+                      if (await dbHelper.checkIfEmailAlreadyExists(
+                          email: emailController.text)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Email already exists@!")));
+                      } else {
+                        bool check = await dbHelper.registerUse(
+                            newUser: UserModel(
+                                username: usernameController.text,
+                                email: emailController.text,
+                                mobile: mobileController.text,
+                                password: newpassController.text,
+                                createAt: DateTime.now()
+                                    .microsecondsSinceEpoch
+                                    .toString()));
+                        if (check) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("Account registred Successfully!!"),
+                              backgroundColor: Colors.green));
+                          Navigator.pop(context);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(
+                                  "Failed to regisred accout,try again !!"),
+                              backgroundColor: Colors.red));
+                        }
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("Password osen\'t match !!!"),
+                          backgroundColor: Colors.orange));
+                    }
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text("Please fill all the required blanlks"),
+                        backgroundColor: Colors.orange));
+                  }
+                }, // Call signup method
                 child: Text(
                   "Sign up",
                   style: TextStyle(color: Colors.white, fontSize: 22),
@@ -187,7 +263,6 @@ class SignupPage extends StatelessWidget {
                   ),
                 ],
               )
-
             ],
           ),
         ),

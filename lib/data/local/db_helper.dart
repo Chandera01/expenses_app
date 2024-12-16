@@ -1,6 +1,7 @@
 import 'package:expense_app_ui/data/local/models/usere_model.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 ///Tables
@@ -8,15 +9,13 @@ import 'package:sqflite/sqflite.dart';
 /// expense(eid,uid[as a foren key] etype[1->debit, 2->credit..],title,desc,createdAt,amt,balance,cat id,)
 /// 2 models
 
-
-class DbHelper{
-
+class DbHelper {
   //private constructor
   DbHelper._();
 
   static final instance = DbHelper._();
 
-  Database ? uDB;
+  Database? uDB;
 
   static final String Table_User = "user";
   static final String Table_Id = "u_id";
@@ -27,31 +26,59 @@ class DbHelper{
   static final String Table_Column_Created_At = "u_created_at";
 
   ///First initial the database when database create
-  Future<Database> initDB()async{
-  uDB = uDB ?? await openDb();
-  return uDB!;
+  Future<Database> initDB() async {
+    uDB = uDB ?? await openDb();
+    return uDB!;
   }
 
   ///openDb
-  Future<Database> openDb()async{
+  Future<Database> openDb() async {
     var dairpath = await getApplicationCacheDirectory();
-    var dbpath = join(dairpath.path,"expense.db");
-      return openDatabase(dbpath,version: 1,onCreate: (db,version){
+    var dbpath = join(dairpath.path, "expense.db");
+    return openDatabase(dbpath, version: 1, onCreate: (db, version) {
       print("Db created");
-        db.execute("created table $Table_User ( $Table_Id integer primary key autoincrement, $Table_Column_UserName text not null, $Table_Column_Email text not null, $Table_Column_Mobile text not null, $Table_Column_Password text not null, $Table_Column_Created_At text not null)");
-      });
+      db.execute(
+          "create table $Table_User ( $Table_Id integer primary key autoincrement, $Table_Column_UserName text not null, $Table_Column_Email text not null, $Table_Column_Mobile text not null, $Table_Column_Password text not null, $Table_Column_Created_At text not null)");
+    });
   }
 
-  Future<bool> addUser(UserModel newUser)async{
+  Future<bool> checkIfEmailAlreadyExists({required String email}) async {
+    Database db = await initDB();
+
+    List<Map<String, dynamic>> data = await db.query(Table_User,
+        where: "$Table_Column_Email = ?", whereArgs: [email]);
+
+    return data.isNotEmpty;
+  }
+
+  Future<bool> registerUse({required UserModel newUser}) async {
+    Database db = await initDB();
+    int rowsEffected = await db.insert(Table_User, newUser.toMap());
+    return rowsEffected > 0;
+  }
+
+  Future<bool> authenticateUser(
+      {required String email, required String pass}) async {
+    Database db = await initDB();
+
+    List<Map<String, dynamic>> mData = await db.query(Table_User,
+        where: "$Table_Column_Email = ? AND $Table_Column_Password = ?",
+        whereArgs: [email, pass]);
+    if (mData.isNotEmpty) {
+      var prefs = await SharedPreferences.getInstance();
+      prefs.setString("userId", mData[0][Table_Id].toString());
+    }
+      return mData.isNotEmpty;
+  }
+
+  /*Future<bool> addUser(UserModel newUser)async{
     Database db = await initDB();
    int rowseffected = await db.insert(Table_User, newUser.toMap());
    print("Rows effected");
    return rowseffected>0;
-  }
+  }*/
 
-
-
-  Future<List<UserModel>> fetchUser()async{
+  /* Future<List<UserModel>> fetchUser()async{
     Database db = await initDB();
     List<UserModel> uTask = [];
     List<Map<String,dynamic>> allUser = await db.query(Table_User);
@@ -60,5 +87,5 @@ class DbHelper{
       uTask.add(eachUser);
     }
     return uTask;
-  }
+  }*/
 }
