@@ -185,11 +185,9 @@ class _LoginPageState extends State<LoginPage> {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => SignupPage()));
                 },
-                child: Expanded(
-                  child: Text(
-                    "  Sign in",
-                    style: TextStyle(color: Colors.black, fontSize: 18),
-                  ),
+                child: Text(
+                  "  Sign in",
+                  style: TextStyle(color: Colors.black, fontSize: 18),
                 ),
               ),
             ],

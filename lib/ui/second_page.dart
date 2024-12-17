@@ -1,11 +1,12 @@
-import 'package:expense_app_ui/ui/third_page.dart';
+import 'package:expense_app_ui/ui/add_exp_page.dart';
 import 'package:flutter/material.dart';
 
 class SecondPage extends StatefulWidget {
   @override
   State<SecondPage> createState() => _SecondPageState();
 }
-
+String selectedExpenseType = "Debit";
+List<String> mExpenseType = ["Debit","Credit","Loan","Lead","Borrow"];
 class _SecondPageState extends State<SecondPage> {
   @override
   Widget build(BuildContext context) {
@@ -56,23 +57,31 @@ class _SecondPageState extends State<SecondPage> {
                 ),
                 OutlinedButton(
                   onPressed: () {},
-                  child: Row(
-                    children: [
-                      Text(
-                        "This Month",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                      Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        color: Colors.black,
-                      ),
-                    ],
-                  ),
+                  child: StatefulBuilder(builder: (_, ss) {
+                    return DropdownMenu(
+                        inputDecorationTheme: InputDecorationTheme(
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(21),
+                            borderSide: BorderSide(width: 1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(21),
+                            borderSide: BorderSide(width: 1),
+                          ),
+                        ),
+                        initialSelection: selectedExpenseType,
+                        onSelected: (value){
+                          selectedExpenseType = value ?? "Debit";
+                        },
+                        dropdownMenuEntries: mExpenseType.map((expenseType){
+                          return DropdownMenuEntry(value: expenseType, label: expenseType);
+                        }).toList());
+                  }),
                   style: OutlinedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
+                    /*shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    backgroundColor: Color(0xFFe0e0e0),
+                    backgroundColor: Color(0xFFe0e0e0),*/
                     side: BorderSide.none,
                   ),
                 ),
@@ -302,7 +311,7 @@ class _SecondPageState extends State<SecondPage> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ThirdPage()),
+            MaterialPageRoute(builder: (context) => AddExpPage()),
           );
         },
         child: Icon(Icons.add),
