@@ -1,14 +1,26 @@
+import 'package:expense_app_ui/domain/app_constians.dart';
 import 'package:expense_app_ui/domain/ui_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class AddExpPage extends StatelessWidget {
+class AddExpPage extends StatefulWidget {
+  @override
+  State<AddExpPage> createState() => _AddExpPageState();
+}
+
+class _AddExpPageState extends State<AddExpPage> {
   TextEditingController titleController = TextEditingController();
+
   TextEditingController descController = TextEditingController();
+
   TextEditingController amountController = TextEditingController();
 
   String selectedExpenseType = "Debit";
-  List<String> mExpenseType = ["Debit","Credit","Loan","Lead","Borrow"];
+
+  int selectedCatIndex = -1;
+
+  List<String> mExpenseType = ["Debit", "Credit", "Loan", "Lead", "Borrow"];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,28 +57,80 @@ class AddExpPage extends StatelessWidget {
             ///expense type
             StatefulBuilder(builder: (_, ss) {
               return DropdownMenu(
-                inputDecorationTheme: InputDecorationTheme(
+                  width: double.infinity,
+                  inputDecorationTheme: InputDecorationTheme(
                     enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(21),
-                  borderSide: BorderSide(width: 1),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(21),
-                  borderSide: BorderSide(width: 1),
-                ),
-                ),
-              initialSelection: selectedExpenseType,
-                onSelected: (value){
-                      selectedExpenseType = value ?? "Debit";
-                },
-                dropdownMenuEntries: mExpenseType.map((expenseType){
-                  return DropdownMenuEntry(value: expenseType, label: expenseType);
-                }).toList());
+                      borderRadius: BorderRadius.circular(21),
+                      borderSide: BorderSide(width: 1),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(21),
+                      borderSide: BorderSide(width: 1),
+                    ),
+                  ),
+                  initialSelection: selectedExpenseType,
+                  onSelected: (value) {
+                    selectedExpenseType = value ?? "Debit";
+                  },
+                  dropdownMenuEntries: mExpenseType.map((expenseType) {
+                    return DropdownMenuEntry(
+                        value: expenseType, label: expenseType);
+                  }).toList());
             }),
+            mSpacer(),
+            InkWell(
+              onTap: () {
+                 showModalBottomSheet(
+                    context: context,
+                    builder: (_) {
+                      return Container(
+                        padding: EdgeInsets.symmetric(vertical: 21),
+                        child: GridView.builder(
+                          itemCount: AppConstants.mCat.length,
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 4),
+                            itemBuilder: (_,index){
+                                  return InkWell(
+                                    onTap: (){
+                                       selectedCatIndex = index;
+                                       setState(() {
+
+                                       });
+                                       Navigator.pop(context);
+                                    },
+                                    child: Column(
+                                      children: [
+                                        Image.asset(AppConstants.mCat[index].imgPath,width: 40,height: 40,),
+                                        Text(AppConstants.mCat[index].title, maxLines: 1, overflow: TextOverflow.ellipsis,),
+                                      ],
+                                    ),
+                                  );
+                            }),
+                      );
+                    });
+              },
+              child: Container(
+                width: double.infinity,
+                height: 57,
+                child: Center(
+                  child: selectedCatIndex>=0 ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(AppConstants.mCat[selectedCatIndex].imgPath,width: 35,height: 35,),
+                      Text("  -  ${AppConstants.mCat[selectedCatIndex].title}"),
+                    ],
+                  ) : Text("Choose a Category"),
+                ),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(21),
+                    border: Border.all(width: 1, color: Colors.black)),
+              ),
+            ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      /*floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Show the bottom sheet when FAB is pressed
           showModalBottomSheet(
@@ -106,7 +170,7 @@ class AddExpPage extends StatelessWidget {
           );
         },
         child: Icon(Icons.grid_view),
-      ),
+      ),*/
     );
   }
 }
