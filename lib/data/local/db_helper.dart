@@ -1,3 +1,4 @@
+import 'package:expense_app_ui/data/local/models/expense_model.dart';
 import 'package:expense_app_ui/data/local/models/usere_model.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -57,7 +58,7 @@ class DbHelper {
 
       ///expense table
       db.execute(
-          "create table $Expense_Table ( $Expense_Id integer primary key autoincrement, $Table_User_Id integer, $Expense_Column_Table_Type integer, $Expense_Column_Title text not null, $Expense_Column_Description text not null, $Expense_Column_createdAt text not null, $Expense_Column_amount real not null, $Expense_Column_balance real, $Expense_Column_Cat_Id integer");
+          "create table $Expense_Table ( $Expense_Id integer primary key autoincrement, $Table_User_Id integer, $Expense_Column_Table_Type text, $Expense_Column_Title text not null, $Expense_Column_Description text not null, $Expense_Column_createdAt text not null, $Expense_Column_amount real not null, $Expense_Column_balance real, $Expense_Column_Cat_Id integer)");
     });
   }
 
@@ -89,6 +90,21 @@ class DbHelper {
     }
     return mData.isNotEmpty;
   }
+
+
+  Future<bool>  addExpense(ExpenseModel newExpense)async{
+    Database db = await initDB();
+   /* var prefs = await SharedPreferences.getInstance();
+    String uid = prefs.getString("userId") ?? "";
+      newExpense.userId = int.parse(uid);*/
+   int rowsEffected = await db.insert(Expense_Table, newExpense.toMap());
+   return rowsEffected>0;
+  }
+
+
+
+
+
 
   /*Future<bool> addUser(UserModel newUser)async{
     Database db = await initDB();

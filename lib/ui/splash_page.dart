@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:expense_app_ui/ui/on_boading/login_page.dart';
+import 'package:expense_app_ui/ui/second_page.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashPage extends StatefulWidget {
   @override
@@ -8,15 +10,24 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
+
+  String ? uid;
+
   @override
   void initState() {
     super.initState();
-    // Set a timer to navigate to LoginPage after 3 seconds
-    Timer(Duration(seconds: 2), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
-      );
+
+    Timer(Duration(seconds: 2), () async{
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      uid = prefs.getString("userId") ?? "";
+
+      Widget navigateTo = LoginPage();
+
+      if(uid!= ""){
+        navigateTo = SecondPage();
+      }
+      Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => SecondPage()));
+
     });
   }
 
