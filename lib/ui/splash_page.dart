@@ -19,14 +19,13 @@ class _SplashPageState extends State<SplashPage> {
 
     Timer(Duration(seconds: 2), () async{
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      uid = prefs.getString("userId") ?? "";
+   var getValue = prefs.getString("userId");
 
-      Widget navigateTo = LoginPage();
 
-      if(uid!= ""){
-        navigateTo = SecondPage();
+      if(getValue!=null){
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>SecondPage(),));
       }
-      Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => SecondPage()));
+      Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => LoginPage(),));
 
     });
   }
