@@ -1,5 +1,10 @@
+import 'package:expense_app_ui/data/local/models/expense_model.dart';
 import 'package:expense_app_ui/ui/add_exp_page.dart';
+import 'package:expense_app_ui/ui/block/expense_block.dart';
+import 'package:expense_app_ui/ui/block/expense_event.dart';
+import 'package:expense_app_ui/ui/block/expense_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SecondPage extends StatefulWidget {
   @override
@@ -8,8 +13,20 @@ class SecondPage extends StatefulWidget {
 String selectedExpenseType = "Debit";
 List<String> mExpenseType = ["Debit","Credit","Loan","Lead","Borrow"];
 class _SecondPageState extends State<SecondPage> {
+
+  List<ExpenseModel> mExpense = [];
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<ExpenseBlock>().add(FetchInitialExpenseEvent());
+    // context.read()<ExpenseBlock>().add(FetchInitialExpenseEvent());
+  }
+
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(25.0),
@@ -156,7 +173,54 @@ class _SecondPageState extends State<SecondPage> {
             SizedBox(height: 15),
 
             /// Expense List Header
-            Align(
+
+            Expanded(
+              child: BlocBuilder<ExpenseBlock,ExpenseState>(builder: (_,state){
+                  if(state is ExpenseLoadingState){
+                    return Center(child: CircularProgressIndicator(),);
+                  }else if(state is ExpenseErrorState){
+                        return Center(child: Text(state.errorMsg),);
+                  }else if(state is ExpenseLoadedState){
+                      return state.mExp.isNotEmpty ? ListView.builder(
+                        itemCount: state.mExp.length,
+                          itemBuilder: (_,index){
+              
+                         var allExp = state.mExp;
+                                return  SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      ListTile(
+                                        leading: Container(
+                                          height: 40,
+                                          width: 40,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[200],
+                                            borderRadius: BorderRadius.circular(5),
+                                          ),
+                                          child: Image.asset(
+                                            "asset/image/shpotroll-removebg-preview.png",
+                                            color: Color(0xFF727dd6),
+                                            fit: BoxFit.contain,
+                                          ),
+                                        ),
+                                        title: Text(allExp[index].title),
+                                        subtitle: Text(allExp[index].desc),
+                                        trailing: Text(
+                                          "-\$${allExp[index].amount}",
+                                          style: TextStyle(
+                                              fontSize: 18, color: Colors.pinkAccent),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                      }) : Center(child: Text("No expenses Found"),);
+                  }
+                  return Container();
+              }),
+            )
+
+          /*  Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 "Expense List",
@@ -166,7 +230,7 @@ class _SecondPageState extends State<SecondPage> {
             SizedBox(height: 20),
 
             /// Expense List using separate boxes
-            Expanded(
+            Expanded (
               child: ListView(
                 children: [
                   // Tuesday, 14 Section
@@ -303,7 +367,7 @@ class _SecondPageState extends State<SecondPage> {
                   ),
                 ],
               ),
-            ),
+            ),*/
           ],
         ),
       ),

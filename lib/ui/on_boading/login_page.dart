@@ -35,8 +35,8 @@ class _LoginPageState extends State<LoginPage> {
               child: TextField(
                 controller: emailController,
                 decoration: InputDecoration(
-                  labelText: 'Username', // Label for the input field
-                  hintText: 'Enter your username', // Hint text inside the field
+                  labelText: 'email', // Label for the input field
+                  hintText: 'Enter your email here', // Hint text inside the field
                   border: OutlineInputBorder(
                     // Border around the input field
                     borderRadius: BorderRadius.circular(8.0),

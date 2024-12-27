@@ -101,7 +101,16 @@ class DbHelper {
    return rowsEffected>0;
   }
 
+  Future<List<ExpenseModel>> getAllExp()async{
+    Database db = await initDB();
+  List<Map<String,dynamic>>  mData = await db.query(Expense_Table);
+  List<ExpenseModel> allExp = [];
 
+  for(Map<String,dynamic> eachEXp in mData){
+    allExp.add(ExpenseModel.forMap(eachEXp));
+  }
+    return allExp;
+  }
 
 
 

@@ -1,8 +1,10 @@
-import 'package:expense_app_ui/data/local/db_helper.dart';
 import 'package:expense_app_ui/data/local/models/expense_model.dart';
 import 'package:expense_app_ui/domain/app_constians.dart';
 import 'package:expense_app_ui/domain/ui_helper.dart';
+import 'package:expense_app_ui/ui/block/expense_block.dart';
+import 'package:expense_app_ui/ui/block/expense_event.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AddExpPage extends StatefulWidget {
@@ -154,9 +156,24 @@ class _AddExpPageState extends State<AddExpPage> {
                 ){
                   var prefs = await SharedPreferences.getInstance();
                   String uid = prefs.getString("userId") ?? "";
-                  DbHelper dbHelper = DbHelper.instance;
 
-                  bool check = await dbHelper.addExpense(ExpenseModel(
+                  context.read<ExpenseBlock>().add(AddExpenseEvent(newExp: ExpenseModel(
+                      userId: int.parse(uid),
+                      expenseType: selectedExpenseType,
+                      title: titleController.text,
+                      desc: descController.text,
+                      createdAt:
+                      DateTime.now().microsecondsSinceEpoch.toString(),
+                      amount: double.parse(amountController.text),
+                      balance: 0,
+                      categoryId: AppConstants.mCat[selectedCatIndex].id)));
+                  
+                  Navigator.pop(context);
+
+                  // DbHelper dbHelper = DbHelper.instance;
+
+                 /* bool check = await dbHelper.addExpense(
+                      /*ExpenseModel(
                       userId: int.parse(uid),
                       expenseType: selectedExpenseType,
                       title: titleController.text,
@@ -165,16 +182,19 @@ class _AddExpPageState extends State<AddExpPage> {
                           DateTime.now().microsecondsSinceEpoch.toString(),
                       amount: double.parse(amountController.text),
                       balance: 0,
-                      categoryId: AppConstants.mCat[selectedCatIndex].id));
+                      categoryId: AppConstants.mCat[selectedCatIndex].id)*/
 
-                  if (check) {
+
+                  );*/
+
+                  /*if (check) {
                     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("Expense Add !!!"),backgroundColor: Colors.green));
                     Navigator.pop(context);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("Expense Not added"),backgroundColor: Colors.red));
-                  }
+                  }*/
                 }
               },
               child: Text("Add Expense"),

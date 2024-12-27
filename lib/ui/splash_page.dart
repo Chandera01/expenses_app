@@ -11,7 +11,7 @@ class SplashPage extends StatefulWidget {
 
 class _SplashPageState extends State<SplashPage> {
 
-  String ? uid;
+
 
   @override
   void initState() {
@@ -23,10 +23,11 @@ class _SplashPageState extends State<SplashPage> {
 
 
       if(getValue!=null){
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>SecondPage(),));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>SecondPage(),));
+      }else {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => LoginPage(),));
       }
-      Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => LoginPage(),));
-
     });
   }
 
