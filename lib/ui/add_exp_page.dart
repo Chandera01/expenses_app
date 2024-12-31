@@ -3,9 +3,12 @@ import 'package:expense_app_ui/domain/app_constians.dart';
 import 'package:expense_app_ui/domain/ui_helper.dart';
 import 'package:expense_app_ui/ui/block/expense_block.dart';
 import 'package:expense_app_ui/ui/block/expense_event.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 
 class AddExpPage extends StatefulWidget {
   @override
@@ -24,6 +27,10 @@ class _AddExpPageState extends State<AddExpPage> {
   int selectedCatIndex = -1;
 
   List<String> mExpenseType = ["Debit", "Credit", "Loan", "Lead", "Borrow"];
+
+  DateTime selectedDate = DateTime.now();
+
+  DateFormat mFormat = DateFormat.yMMMd();
 
   @override
   Widget build(BuildContext context) {
@@ -145,6 +152,37 @@ class _AddExpPageState extends State<AddExpPage> {
               ),
             ),
             mSpacer(),
+            InkWell(
+              onTap: () async{
+                if(Platform.isIOS || Platform.isMacOS){
+                 /* showCupertinoModalPopup(context: context, builder: (_){
+                      return CupertinoDatePicker(
+                          onDateTimeChanged: onDateTimeChanged)
+                  });*/
+                }else{
+                       selectedDate = await  showDatePicker(context: context,
+                                firstDate: DateTime(DateTime.now().year-1),
+                                lastDate: DateTime.now()
+                       ) ?? DateTime.now();
+
+                       setState(() {
+
+                       });
+                }
+
+              },
+              child: Container(
+                width: double.infinity,
+                height: 57,
+                child: Center(
+                  child: Text(mFormat.format(selectedDate).toString()),
+                ),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(21),
+                    border: Border.all(width: 1, color: Colors.black)),
+              ),
+            ),
+            mSpacer(),
             OutlinedButton(
 
               onPressed: ()
@@ -163,11 +201,13 @@ class _AddExpPageState extends State<AddExpPage> {
                       title: titleController.text,
                       desc: descController.text,
                       createdAt:
-                      DateTime.now().microsecondsSinceEpoch.toString(),
+                      selectedDate.microsecondsSinceEpoch.toString(),
                       amount: double.parse(amountController.text),
                       balance: 0,
                       categoryId: AppConstants.mCat[selectedCatIndex].id)));
-                  
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Expense Add !!!"),backgroundColor: Colors.green));
                   Navigator.pop(context);
 
                   // DbHelper dbHelper = DbHelper.instance;
@@ -211,47 +251,6 @@ class _AddExpPageState extends State<AddExpPage> {
           ],
         ),
       ),
-      /*floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Show the bottom sheet when FAB is pressed
-          showModalBottomSheet(
-            context: context,
-            builder: (_) {
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 8.0,
-                    mainAxisSpacing: 8.0,
-                  ),
-                  itemCount: mExpenseType.length,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        // Do something when an item is tapped
-                        Navigator.pop(context);
-                        print("Selected: ${mExpenseType[index]}");
-                      },
-                      child: Card(
-                        elevation: 4.0,
-                        color: Colors.blueAccent,
-                        child: Center(
-                          child: Text(
-                            mExpenseType[index],
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
-          );
-        },
-        child: Icon(Icons.grid_view),
-      ),*/
     );
   }
 }

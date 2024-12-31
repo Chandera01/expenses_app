@@ -1,10 +1,13 @@
 import 'package:expense_app_ui/data/local/models/expense_model.dart';
+import 'package:expense_app_ui/data/local/models/filter_expense_model.daart.dart';
+import 'package:expense_app_ui/domain/app_constians.dart';
 import 'package:expense_app_ui/ui/add_exp_page.dart';
 import 'package:expense_app_ui/ui/block/expense_block.dart';
 import 'package:expense_app_ui/ui/block/expense_event.dart';
 import 'package:expense_app_ui/ui/block/expense_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class SecondPage extends StatefulWidget {
   @override
@@ -12,6 +15,12 @@ class SecondPage extends StatefulWidget {
 }
 String selectedExpenseType = "Debit";
 List<String> mExpenseType = ["Debit","Credit","Loan","Lead","Borrow"];
+
+
+DateFormat mFormat = DateFormat.yMMMd();
+
+  List<FilterExpenseModel> filterData = [];
+
 class _SecondPageState extends State<SecondPage> {
 
   List<ExpenseModel> mExpense = [];
@@ -170,7 +179,8 @@ class _SecondPageState extends State<SecondPage> {
                 ],
               ),
             ),
-            SizedBox(height: 15),
+            SizedBox(height: 20),
+
 
             /// Expense List Header
 
@@ -181,12 +191,61 @@ class _SecondPageState extends State<SecondPage> {
                   }else if(state is ExpenseErrorState){
                         return Center(child: Text(state.errorMsg),);
                   }else if(state is ExpenseLoadedState){
+
+                    filterDatadateWise(allExp: state.mExp);
+
+                    ///
+                    /// Expense List
+                    ///
                       return state.mExp.isNotEmpty ? ListView.builder(
-                        itemCount: state.mExp.length,
+                        // itemCount: state.mExp.length,
+                        itemCount: filterData.length,
                           itemBuilder: (_,index){
-              
-                         var allExp = state.mExp;
-                                return  SingleChildScrollView(
+                          // var allExp = state.mExp;
+
+                         return Container(
+                           margin: EdgeInsets.only(bottom: 15),
+                           decoration: BoxDecoration(
+                             color: Colors.white,
+                             borderRadius: BorderRadius.circular(9),
+                             border: Border.all(color: Colors.grey, width: 0.5),
+                           ),
+                           child: Padding(
+                             padding: const EdgeInsets.all(10.0),
+                             child: Column(
+                               crossAxisAlignment: CrossAxisAlignment.start,
+                               children: [
+                                 Row(
+                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                   children: [
+                                     Text(
+                                       ///
+                                       ///date Filter
+                                       ///
+                                       ///
+                                       ///
+                                       filterData[index].typeName,
+                                       style: TextStyle(
+                                           fontSize: 17, fontWeight: FontWeight.bold),
+                                     ),
+                                     Text(
+                                       "-\$${filterData[index].totalAmount}",
+                                       style: TextStyle(
+                                           fontSize: 17, fontWeight: FontWeight.bold),
+                                     ),
+                                   ],
+                                 ),
+                                 Divider(),
+                                 ///
+                                 ////EXPENSE FILTER LIST
+                                 /////
+                                 ///
+                                 ListView.builder(
+                                   itemCount: filterData[index].allExpenses.length,
+                                     shrinkWrap: true,
+                                     physics: NeverScrollableScrollPhysics(),
+                                     itemBuilder: (_,childIndex){
+                                   return  SingleChildScrollView(
                                   child: Column(
                                     children: [
                                       ListTile(
@@ -198,22 +257,41 @@ class _SecondPageState extends State<SecondPage> {
                                             borderRadius: BorderRadius.circular(5),
                                           ),
                                           child: Image.asset(
-                                            "asset/image/shpotroll-removebg-preview.png",
-                                            color: Color(0xFF727dd6),
+                                            AppConstants.mCat.where((exp){
+                                              return exp.id==filterData[index].allExpenses[childIndex].categoryId;
+                                            }).toList()[0].imgPath,
                                             fit: BoxFit.contain,
                                           ),
                                         ),
-                                        title: Text(allExp[index].title),
-                                        subtitle: Text(allExp[index].desc),
-                                        trailing: Text(
-                                          "-\$${allExp[index].amount}",
-                                          style: TextStyle(
-                                              fontSize: 18, color: Colors.pinkAccent),
+                                        title: Text(filterData[index].allExpenses[childIndex].title),
+                                        subtitle: Text(filterData[index].allExpenses[childIndex].desc),
+                                        trailing: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              "${mFormat.format(DateTime.fromMicrosecondsSinceEpoch(int.parse(filterData[index].allExpenses[childIndex].createdAt)))}",
+                                              style: TextStyle(
+                                                  fontSize: 15, color: Colors.grey),
+                                            ),
+                                            Text(
+                                              "-\$${filterData[index].allExpenses[childIndex].amount}",
+                                              style: TextStyle(
+                                                  fontSize: 18, color: Colors.pinkAccent),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],
                                   ),
                                 );
+                                 })
+
+                               ],
+                             ),
+                           ),
+                         );
+
+
                       }) : Center(child: Text("No expenses Found"),);
                   }
                   return Container();
@@ -378,8 +456,52 @@ class _SecondPageState extends State<SecondPage> {
             MaterialPageRoute(builder: (context) => AddExpPage()),
           );
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
+
+  void filterDatadateWise({required List<ExpenseModel> allExp}) {
+    filterData.clear();
+    ///date/month
+    ///total Amount
+    ///list of Expense
+      List<String> UniqueDates = [];
+
+    for (ExpenseModel eachExp in allExp) {
+      String eachDate = mFormat.format(
+          DateTime.fromMicrosecondsSinceEpoch(int.parse(eachExp.createdAt)));
+
+      if(!UniqueDates.contains(eachDate)){
+        UniqueDates.add(eachDate);
+      }
+
+    }
+
+    for(String eachDate in UniqueDates){
+      num totalAmt = 0.0;
+      List<ExpenseModel> eachDateExp = [];
+
+      for(ExpenseModel eachExp in allExp){
+        String expDate = mFormat.format(DateTime.fromMicrosecondsSinceEpoch(int.parse(eachExp.createdAt)));
+
+        if(eachDate==expDate){
+          eachDateExp.add(eachExp);
+          if(eachExp.expenseType=="Debit"){
+                  // debit
+                  totalAmt += eachExp.amount;
+          }else{
+            // credit
+            totalAmt-=eachExp.amount;
+          }
+        }
+
+      }
+
+      filterData.add(FilterExpenseModel(typeName: eachDate, totalAmount: totalAmt, allExpenses: eachDateExp));
+
+    }
+    // print(filterData[0].allExpenses.length);
+  }
+  
 }
